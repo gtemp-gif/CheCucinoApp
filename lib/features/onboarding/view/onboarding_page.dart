@@ -119,8 +119,9 @@ class OnboardingPage extends StatelessWidget {
           }),
         ),
         const SizedBox(height: 32),
+import 'package:go_router/go_router.dart';
         NeoButton(
-          onPressed: () {},
+          onPressed: () => context.go('/login'),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

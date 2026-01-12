@@ -1,8 +1,23 @@
+import 'package:che_cucino/core/di/injector.dart';
 import 'package:che_cucino/core/widgets/neo_checkbox.dart';
+import 'package:che_cucino/features/shopping_list/bloc/shopping_list_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ShoppingListPage extends StatelessWidget {
   const ShoppingListPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<ShoppingListBloc>()..add(LoadShoppingList()),
+      child: const ShoppingListView(),
+    );
+  }
+}
+
+class ShoppingListView extends StatelessWidget {
+  const ShoppingListView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,27 +31,25 @@ class ShoppingListPage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildAddIngredientBar(context),
-          const SizedBox(height: 24),
-          _buildCategorySection(context, title: 'Vegetables and Fruit', items: [
-            _ShoppingListItem('Ramati Tomatoes', isUrgent: true),
-            _ShoppingListItem('Zucchini', note: '~ 500g'),
-            _ShoppingListItem('Fresh Basil', isChecked: true),
-          ]),
-          const SizedBox(height: 24),
-          _buildCategorySection(context, title: 'Dairy and Eggs', items: [
-            _ShoppingListItem('Mozzarella', isUrgent: true),
-            _ShoppingListItem('Parmigiano Reggiano', isChecked: true),
-          ]),
-          const SizedBox(height: 24),
-          _buildCategorySection(context, title: 'Pantry', items: [
-            _ShoppingListItem('Semolina pasta', note: 'Spaghetti n.5'),
-            _ShoppingListItem('Olive oil', isChecked: true),
-          ]),
-        ],
+      body: BlocBuilder<ShoppingListBloc, ShoppingListState>(
+        builder: (context, state) {
+          if (state.status == ShoppingListStatus.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final items = state.items;
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              _buildAddIngredientBar(context),
+              const SizedBox(height: 24),
+              _buildCategorySection(context, title: 'Vegetables and Fruit', items: items),
+              const SizedBox(height: 24),
+              _buildCategorySection(context, title: 'Dairy and Eggs', items: items),
+              const SizedBox(height: 24),
+              _buildCategorySection(context, title: 'Pantry', items: items),
+            ],
+          );
+        },
       ),
     );
   }
@@ -83,7 +96,7 @@ class ShoppingListPage extends StatelessWidget {
     );
   }
 
-  Widget _buildShoppingListItem(BuildContext context, _ShoppingListItem item) {
+  Widget _buildShoppingListItem(BuildContext context, ShoppingListItem item) {
     final theme = Theme.of(context);
     return NeoCheckbox(
       value: item.isChecked,
@@ -107,13 +120,4 @@ class ShoppingListPage extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ShoppingListItem {
-  _ShoppingListItem(this.name, {this.note, this.isUrgent = false, this.isChecked = false});
-
-  final String name;
-  final String? note;
-  final bool isUrgent;
-  final bool isChecked;
 }

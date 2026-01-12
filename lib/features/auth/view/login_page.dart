@@ -3,6 +3,7 @@ import 'package:che_cucino/core/widgets/neo_button.dart';
 import 'package:che_cucino/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -29,19 +30,26 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildHeader(context),
-              const SizedBox(height: 48),
-              _buildLoginForm(context),
-              const SizedBox(height: 24),
-              _buildFooter(context),
-            ],
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state.status == AuthStatus.authenticated) {
+          context.go('/home');
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildHeader(context),
+                const SizedBox(height: 48),
+                _buildLoginForm(context),
+                const SizedBox(height: 24),
+                _buildFooter(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -71,16 +79,17 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
+import 'package:che_cucino/core/widgets/neo_text_field.dart';
   Widget _buildLoginForm(BuildContext context) {
     return Column(
       children: [
-        _buildNeoTextField(
+        NeoTextField(
           controller: _emailController,
           labelText: 'Email or username',
           prefixIcon: Icons.alternate_email,
         ),
         const SizedBox(height: 16),
-        _buildNeoTextField(
+        NeoTextField(
           controller: _passwordController,
           labelText: 'Password',
           prefixIcon: Icons.lock_open,
@@ -137,50 +146,6 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Widget _buildNeoTextField({
-    required TextEditingController controller,
-    required String labelText,
-    required IconData prefixIcon,
-    IconData? suffixIcon,
-    bool obscureText = false,
-  }) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-
-    final shadowColor1 = isDarkMode ? const Color(0xFF151714) : const Color(0xFFD1D3CB);
-    final shadowColor2 = isDarkMode ? const Color(0xFF292D28) : Colors.white;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: shadowColor1,
-            offset: const Offset(5, 5),
-            blurRadius: 10,
-            spreadRadius: -5,
-          ),
-          BoxShadow(
-            color: shadowColor2,
-            offset: const Offset(-5, -5),
-            blurRadius: 10,
-            spreadRadius: -5,
-          ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: labelText,
-          prefixIcon: Icon(prefixIcon),
-          suffixIcon: suffixIcon != null ? Icon(suffixIcon) : null,
-          border: InputBorder.none,
-        ),
-      ),
-    );
-  }
 
   @override
   void dispose() {

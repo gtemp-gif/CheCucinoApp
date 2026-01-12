@@ -179,11 +179,14 @@ class HomeView extends StatelessWidget {
     );
   }
 
+import 'package:go_router/go_router.dart';
   Widget _buildRecipeCard(BuildContext context, {required String imageUrl, required String title, required List<String> tags}) {
     final theme = Theme.of(context);
-    return NeoCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: () => context.go('/recipe-details'),
+      child: NeoCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.all(Radius.circular(16)),

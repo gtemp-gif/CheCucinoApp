@@ -1,9 +1,24 @@
+import 'package:che_cucino/core/di/injector.dart';
 import 'package:che_cucino/core/widgets/neo_button.dart';
 import 'package:che_cucino/core/widgets/neo_card.dart';
+import 'package:che_cucino/features/missions/bloc/missions_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MissionsPage extends StatelessWidget {
   const MissionsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<MissionsBloc>()..add(LoadMissions()),
+      child: const MissionsView(),
+    );
+  }
+}
+
+class MissionsView extends StatelessWidget {
+  const MissionsView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,15 +32,22 @@ class MissionsPage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildHeader(context),
-          const SizedBox(height: 24),
-          _buildInProgressSection(context),
-          const SizedBox(height: 24),
-          _buildNewMissionsSection(context),
-        ],
+      body: BlocBuilder<MissionsBloc, MissionsState>(
+        builder: (context, state) {
+          if (state.status == MissionsStatus.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              _buildHeader(context),
+              const SizedBox(height: 24),
+              _buildInProgressSection(context, state),
+              const SizedBox(height: 24),
+              _buildNewMissionsSection(context, state),
+            ],
+          );
+        },
       ),
     );
   }
